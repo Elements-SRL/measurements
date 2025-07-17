@@ -24,21 +24,21 @@ impl<U: Uom> RangedMeasurement<U> {
         }
     }
 
-    fn get_min(&self) -> Measurement<U> {
+    fn min(&self) -> Measurement<U> {
         Measurement::new(self.min, self.prefix)
     }
 
-    fn get_max(&self) -> Measurement<U> {
+    fn max(&self) -> Measurement<U> {
         Measurement::new(self.max, self.prefix)
     }
 
-    fn get_step(&self) -> Measurement<U> {
+    fn step(&self) -> Measurement<U> {
         Measurement::new(self.step, self.prefix)
     }
 
     fn is_in_range(&self, other: Measurement<U>, p: Option<Percentage>) -> bool {
         let p = p.unwrap_or(percentage!(1.0)).get_value();
-        other > self.get_min() * p && other < self.get_max() * p
+        other > self.min() * p && other < self.max() * p
     }
 }
 
@@ -51,19 +51,19 @@ mod ranged_measurement {
     #[test]
     fn get_min() {
         let r = RangedMeasurement::<Volt>::new(-10, 10, 1, Prefix::Micro);
-        assert_eq!(r.get_min(), Measurement::new(-10, Prefix::Micro));
+        assert_eq!(r.min(), Measurement::new(-10, Prefix::Micro));
     }
 
     #[test]
     fn get_max() {
         let r = RangedMeasurement::<Volt>::new(-10, 10, 1, Prefix::Micro);
-        assert_eq!(r.get_max(), Measurement::new(10, Prefix::Micro));
+        assert_eq!(r.max(), Measurement::new(10, Prefix::Micro));
     }
 
     #[test]
     fn get_step() {
         let r = RangedMeasurement::<Volt>::new(-10, 10, 1, Prefix::Micro);
-        assert_eq!(r.get_step(), Measurement::new(1, Prefix::Micro));
+        assert_eq!(r.step(), Measurement::new(1, Prefix::Micro));
     }
 
     #[test]
