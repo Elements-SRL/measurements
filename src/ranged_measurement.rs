@@ -4,6 +4,10 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
+/// Represents a measurement range with a minimum, maximum, step size, and unit prefix.
+///
+/// # Type Parameters
+/// - `U`: The unit of measurement, implementing the [`Uom`] trait.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct RangedMeasurement<U: Uom> {
     min: f64,
@@ -14,6 +18,13 @@ pub struct RangedMeasurement<U: Uom> {
 }
 
 impl<U: Uom> RangedMeasurement<U> {
+    /// Creates a new `RangedMeasurement` with the given minimum, maximum, step, and prefix.
+    ///
+    /// # Arguments
+    /// * `min` - The minimum value of the range.
+    /// * `max` - The maximum value of the range.
+    /// * `step` - The step size between values in the range.
+    /// * `prefix` - The SI prefix for the unit.
     pub fn new<V: Into<f64>>(min: V, max: V, step: V, prefix: Prefix) -> Self {
         Self {
             min: min.into(),
@@ -24,19 +35,30 @@ impl<U: Uom> RangedMeasurement<U> {
         }
     }
 
-    fn min(&self) -> Measurement<U> {
+    /// Returns the minimum value as a [`Measurement`] with the associated prefix.
+    pub fn min(&self) -> Measurement<U> {
         Measurement::new(self.min, self.prefix)
     }
 
-    fn max(&self) -> Measurement<U> {
+    /// Returns the maximum value as a [`Measurement`] with the associated prefix.
+    pub fn max(&self) -> Measurement<U> {
         Measurement::new(self.max, self.prefix)
     }
 
-    fn step(&self) -> Measurement<U> {
+    /// Returns the step size as a [`Measurement`] with the associated prefix.
+    pub fn step(&self) -> Measurement<U> {
         Measurement::new(self.step, self.prefix)
     }
 
-    fn is_in_range(&self, other: Measurement<U>, p: Option<Percentage>) -> bool {
+    /// Checks if a given [`Measurement`] is within the range, optionally scaled by a [`Percentage`].
+    ///
+    /// # Arguments
+    /// * `other` - The measurement to check.
+    /// * `p` - An optional percentage to scale the range.
+    ///
+    /// # Returns
+    /// `true` if `other` is within the scaled range, `false` otherwise.
+    pub fn is_in_range(&self, other: Measurement<U>, p: Option<Percentage>) -> bool {
         let p = p.unwrap_or(percentage!(1.0)).get_value();
         other > self.min() * p && other < self.max() * p
     }

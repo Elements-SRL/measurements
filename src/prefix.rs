@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Represents a SI unit prefix (e.g., kilo, mega, milli).
 #[derive(PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum Prefix {
     Tera,
@@ -14,6 +15,7 @@ pub enum Prefix {
 }
 
 impl Prefix {
+    /// Returns the exponent value associated with the prefix (e.g., Kilo = 3, Mega = 6).
     pub fn get_exp_value(&self) -> i16 {
         match self {
             Self::Tera => 12,
@@ -28,7 +30,13 @@ impl Prefix {
         }
     }
 
-    /// Returns a prefix and a exponent reminder
+    /// Returns a prefix and an exponent remainder for a given exponent value.
+    ///
+    /// # Arguments
+    /// * `exp` - The exponent value to convert.
+    ///
+    /// # Returns
+    /// A tuple of the closest [`Prefix`] and the remaining exponent.
     pub fn from_exp_value(exp: i16) -> (Self, i16) {
         match exp {
             e if e >= 12 => (Self::Tera, exp - Self::Tera.get_exp_value()),
@@ -44,11 +52,19 @@ impl Prefix {
         }
     }
 
+    /// Returns the conversion factor between two prefixes as a `f64`.
+    ///
+    /// # Arguments
+    /// * `other` - The target prefix.
+    ///
+    /// # Returns
+    /// The factor by which to multiply to convert from `self` to `other`.
     pub fn get_conversion_factor(&self, other: Self) -> f64 {
         let exp = self.get_exp_value() - other.get_exp_value();
         10f64.powi(exp as i32)
     }
 
+    /// Returns the string label for the prefix (e.g., "k" for kilo).
     pub fn get_label(&self) -> &str {
         match self {
             Self::Tera => "T",
@@ -66,6 +82,10 @@ impl Prefix {
 
 #[allow(clippy::suspicious_arithmetic_impl)]
 impl std::ops::Mul for Prefix {
+    /// Multiplies two [`Prefix`] values, combining their exponents.
+    ///
+    /// # Panics
+    /// Panics if the resulting exponent does not map to a valid prefix.
     type Output = Self;
     fn mul(self, rhs: Self) -> Self::Output {
         let exp = self.get_exp_value() + rhs.get_exp_value();
@@ -78,6 +98,10 @@ impl std::ops::Mul for Prefix {
 
 #[allow(clippy::suspicious_arithmetic_impl)]
 impl std::ops::Div for Prefix {
+    /// Divides two [`Prefix`] values, subtracting their exponents.
+    ///
+    /// # Panics
+    /// Panics if the resulting exponent does not map to a valid prefix.
     type Output = Self;
     fn div(self, rhs: Self) -> Self::Output {
         let exp = self.get_exp_value() - rhs.get_exp_value();

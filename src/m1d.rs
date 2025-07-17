@@ -3,6 +3,10 @@ use ndarray::Array1;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
+/// A one-dimensional array of measurements with a unit and SI prefix.
+///
+/// # Type Parameters
+/// - `U`: The unit of measurement, implementing the [`Uom`] trait.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct M1d<U: Uom> {
     values: Array1<f64>,
@@ -11,6 +15,11 @@ pub struct M1d<U: Uom> {
 }
 
 impl<U: Uom> M1d<U> {
+    /// Creates a new [`M1d`] with the given values and prefix.
+    ///
+    /// # Arguments
+    /// * `values` - The values as a type convertible into `Array1<f64>`.
+    /// * `prefix` - The SI prefix for the unit.
     pub fn new<T: Into<Array1<f64>>>(values: T, prefix: Prefix) -> Self {
         Self {
             values: values.into(),
@@ -19,14 +28,23 @@ impl<U: Uom> M1d<U> {
         }
     }
 
+    /// Returns a clone of the underlying values array.
     pub fn values(&self) -> Array1<f64> {
         self.values.clone()
     }
 
+    /// Returns the SI prefix associated with this array.
     pub fn prefix(&self) -> Prefix {
         self.prefix
     }
 
+    /// Converts the array to a different SI prefix, scaling all values accordingly.
+    ///
+    /// # Arguments
+    /// * `pfx` - The target SI prefix.
+    ///
+    /// # Returns
+    /// A new [`M1d`] with values converted to the target prefix.
     fn convert_to(self, pfx: Prefix) -> Self {
         let conversion_factor = self.prefix.get_conversion_factor(pfx);
         if conversion_factor == 1.0 {
@@ -44,6 +62,7 @@ impl<U: Uom> M1d<U> {
 }
 
 impl<U: Uom> PartialEq for M1d<U> {
+    /// Compares two [`M1d`] arrays for equality, converting prefixes if necessary.
     fn eq(&self, other: &Self) -> bool {
         if self.prefix != other.prefix {
             self.clone().convert_to(other.prefix()).values == other.values

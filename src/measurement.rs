@@ -6,6 +6,10 @@ use std::{
     ops::{Add, Sub},
 };
 
+/// Represents a physical measurement with a value, SI prefix, and unit.
+///
+/// # Type Parameters
+/// - `U`: The unit of measurement, implementing the [`Uom`] trait.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Measurement<U: Uom> {
     value: f64,
@@ -14,6 +18,11 @@ pub struct Measurement<U: Uom> {
 }
 
 impl<U: Uom> Measurement<U> {
+    /// Creates a new [`Measurement`] with the given value and prefix.
+    ///
+    /// # Arguments
+    /// * `value` - The numeric value of the measurement.
+    /// * `prefix` - The SI prefix for the unit.
     pub fn new<V: Into<f64>>(value: V, prefix: Prefix) -> Self {
         Self {
             value: value.into(),
@@ -22,14 +31,23 @@ impl<U: Uom> Measurement<U> {
         }
     }
 
+    /// Returns the numeric value of the measurement.
     pub fn value(&self) -> f64 {
         self.value
     }
 
+    /// Returns a string label combining value, prefix, and unit (e.g., "1.0mV").
     pub fn label(&self) -> String {
         self.value.to_string() + self.prefix.get_label() + &U::uom()
     }
 
+    /// Converts the measurement to a different SI prefix, scaling the value accordingly.
+    ///
+    /// # Arguments
+    /// * `pfx` - The target SI prefix.
+    ///
+    /// # Returns
+    /// A new [`Measurement`] with the value converted to the target prefix.
     pub fn convert_to(&self, pfx: Prefix) -> Self {
         Measurement {
             value: self.value * self.prefix.get_conversion_factor(pfx),
@@ -38,10 +56,12 @@ impl<U: Uom> Measurement<U> {
         }
     }
 
+    /// Returns the SI prefix associated with this measurement.
     pub fn prefix(&self) -> Prefix {
         self.prefix
     }
 
+    /// Returns a "nice" representation of the measurement, adjusting the prefix for readability.
     pub fn nice(self) -> Self {
         let original_prefix = self.prefix();
         let (e, s) = if self.value > 1.0 {
@@ -59,6 +79,7 @@ impl<U: Uom> Measurement<U> {
 }
 
 impl<U: Uom> Add for Measurement<U> {
+    /// Adds two [`Measurement`]s, converting to the same prefix if necessary.
     type Output = Self;
     fn add(self, rhs: Self) -> Self::Output {
         let pfx = rhs.prefix;
@@ -72,6 +93,7 @@ impl<U: Uom> Add for Measurement<U> {
 }
 
 impl<U: Uom> Sub for Measurement<U> {
+    /// Subtracts two [`Measurement`]s, converting to the same prefix if necessary.
     type Output = Self;
     fn sub(self, rhs: Self) -> Self::Output {
         let pfx = rhs.prefix;
@@ -85,12 +107,14 @@ impl<U: Uom> Sub for Measurement<U> {
 }
 
 impl<U: Uom> PartialEq for Measurement<U> {
+    /// Checks equality between two [`Measurement`]s, converting to the same prefix if necessary.
     fn eq(&self, other: &Self) -> bool {
         self.convert_to(other.prefix()).value == other.value
     }
 }
 
 impl<U: Uom> PartialOrd for Measurement<U> {
+    /// Compares two [`Measurement`]s, converting to the same prefix if necessary.
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         let m1 = self.convert_to(other.prefix()).value();
         let m2 = other.value();
@@ -107,6 +131,7 @@ impl<U: Uom> PartialOrd for Measurement<U> {
 }
 
 impl<U: Uom, I: Into<f64>> std::ops::Mul<I> for Measurement<U> {
+    /// Multiplies a [`Measurement`] by a scalar.
     type Output = Measurement<U>;
     fn mul(self, rhs: I) -> Self::Output {
         Measurement::new(self.value * rhs.into(), self.prefix)
@@ -114,6 +139,7 @@ impl<U: Uom, I: Into<f64>> std::ops::Mul<I> for Measurement<U> {
 }
 
 impl<U: Uom, I: Into<f64>> std::ops::Div<I> for Measurement<U> {
+    /// Divides a [`Measurement`] by a scalar.
     type Output = Measurement<U>;
     fn div(self, rhs: I) -> Self::Output {
         Measurement::new(self.value / rhs.into(), self.prefix)
