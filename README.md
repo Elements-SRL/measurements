@@ -18,11 +18,8 @@
 ```rust
 use measurements::prelude::*;
 
-let voltage = Measurement::<Volt>::new(5.0, Prefix::Kilo); // 5 kV
+let voltage = Measurement::<Volt>::new(5.0, Prefix::Milli); // 5 mV
 let current = Measurement::<Ampere>::new(2.0, Prefix::None); // 2 A
-
-let power = voltage * current.get_value(); // 10 kV (as a Measurement<Volt>)
-println!("Power: {}", power.label()); // "10kV"
 
 let arr = M1d::<Volt>::new(vec![1.0, 2.0, 3.0], Prefix::Milli);
 println!("{:?}", arr.values());
