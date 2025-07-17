@@ -21,11 +21,11 @@ impl<U: Uom> Measurement<U> {
         }
     }
 
-    pub fn get_value(&self) -> f64 {
+    pub fn value(&self) -> f64 {
         self.value
     }
 
-    pub fn get_label(&self) -> String {
+    pub fn label(&self) -> String {
         self.value.to_string() + self.prefix.get_label() + &U::uom()
     }
 
@@ -37,12 +37,12 @@ impl<U: Uom> Measurement<U> {
         }
     }
 
-    pub fn get_prefix(&self) -> Prefix {
+    pub fn prefix(&self) -> Prefix {
         self.prefix
     }
 
     pub fn nice(self) -> Self {
-        let original_prefix = self.get_prefix();
+        let original_prefix = self.prefix();
         let (e, s) = if self.value > 1.0 {
             (self.value, 1)
         } else {
@@ -85,14 +85,14 @@ impl<U: Uom> Sub for Measurement<U> {
 
 impl<U: Uom> PartialEq for Measurement<U> {
     fn eq(&self, other: &Self) -> bool {
-        self.convert_to(other.get_prefix()).value == other.value
+        self.convert_to(other.prefix()).value == other.value
     }
 }
 
 impl<U: Uom> PartialOrd for Measurement<U> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        let m1 = self.convert_to(other.get_prefix()).get_value();
-        let m2 = other.get_value();
+        let m1 = self.convert_to(other.prefix()).value();
+        let m2 = other.value();
         if m1.is_nan() || m2.is_nan() {
             None
         } else if m1 == m2 {
@@ -189,13 +189,13 @@ mod measurement_tests {
     #[test]
     fn label_correctness() {
         let a = Measurement::<Volt>::new(0.125, Prefix::Milli);
-        assert_eq!(a.get_label(), "0.125mV");
+        assert_eq!(a.label(), "0.125mV");
     }
 
     #[test]
     fn value_correctness() {
         let a = Measurement::<Volt>::new(0.125, Prefix::Milli);
-        assert_eq!(a.get_value(), 0.125);
+        assert_eq!(a.value(), 0.125);
     }
 
     #[test]

@@ -1,6 +1,7 @@
+use std::fmt::Debug;
 use uom_derive::Uom;
 
-pub trait Uom {
+pub trait Uom: Clone + Copy + Debug {
     fn uom() -> String;
 }
 

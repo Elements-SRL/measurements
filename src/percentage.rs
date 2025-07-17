@@ -22,8 +22,6 @@ macro_rules! percentage {
     }};
 }
 
-
-
 #[cfg(test)]
 mod percentage {
     use super::*;
