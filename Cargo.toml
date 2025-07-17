@@ -1,0 +1,7 @@
+[package]
+name = "measurements"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+uom_derive = { version = "0.1.0", path = "uom_derive" }
