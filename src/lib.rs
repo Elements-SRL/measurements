@@ -4,6 +4,7 @@ pub mod percentage;
 pub mod prefix;
 pub mod ranged_measurement;
 pub mod uom;
+pub mod m2d;
 
 // Prelude module
 pub mod prelude {
@@ -13,4 +14,5 @@ pub mod prelude {
     pub use super::prefix::*;
     pub use super::ranged_measurement::*;
     pub use super::uom::*;
+    pub use super::m2d::*;
 }
