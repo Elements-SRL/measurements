@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 uom_derive = { version = "0.1.0", path = "uom_derive" }
 ndarray = { version = "0.16.1", features = ["serde", "rayon"] }
+serde = { version = "1.0", features = ["derive"] }

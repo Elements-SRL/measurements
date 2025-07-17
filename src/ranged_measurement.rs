@@ -1,7 +1,10 @@
-use crate::{percentage, measurement::Measurement, percentage::{Percentage}, prefix::Prefix, uom::Uom};
+use crate::{
+    measurement::Measurement, percentage, percentage::Percentage, prefix::Prefix, uom::Uom,
+};
+use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct RangedMeasurement<U: Uom> {
     min: f64,
     max: f64,
@@ -39,7 +42,6 @@ impl<U: Uom> RangedMeasurement<U> {
     }
 }
 
-
 #[cfg(test)]
 mod ranged_measurement {
     use crate::uom::Volt;
@@ -75,7 +77,7 @@ mod ranged_measurement {
         let r = RangedMeasurement::<Volt>::new(-10, 10, 1, Prefix::Micro);
         assert!(!r.is_in_range(Measurement::new(1, Prefix::Kilo), None));
     }
- #[test]
+    #[test]
     fn is_in_range_with_some() {
         let r = RangedMeasurement::<Volt>::new(-10, 10, 1, Prefix::Micro);
         assert!(r.is_in_range(Measurement::new(1, Prefix::Micro), Some(percentage!(0.5))));

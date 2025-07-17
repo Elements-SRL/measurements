@@ -1,9 +1,9 @@
-use std::marker::PhantomData;
-use ndarray::{parallel::prelude::*, Array1};
-
 use crate::{prefix::Prefix, uom::Uom};
+use ndarray::Array1;
+use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct M1d<U: Uom> {
     values: Array1<f64>,
     prefix: Prefix,
@@ -26,8 +26,8 @@ impl<U: Uom> M1d<U> {
     pub fn prefix(&self) -> Prefix {
         self.prefix
     }
-    
-    fn convert_to(self, pfx: Prefix) -> Self {        
+
+    fn convert_to(self, pfx: Prefix) -> Self {
         let conversion_factor = self.prefix.get_conversion_factor(pfx);
         if conversion_factor == 1.0 {
             self.clone()
@@ -55,8 +55,8 @@ impl<U: Uom> PartialEq for M1d<U> {
 
 #[cfg(test)]
 mod m1d_tests {
-    use crate::uom::Volt;
     use super::*;
+    use crate::uom::Volt;
 
     #[test]
     fn get_values() {
@@ -67,7 +67,10 @@ mod m1d_tests {
     #[test]
     fn convert_to() {
         let m1d = M1d::<Volt>::new(vec![1.0, 2.0, 3.0], Prefix::Milli);
-        assert_eq!(m1d.convert_to(Prefix::Micro).values(), Array1::from(vec![1000.0, 2000.0, 3000.0]));
+        assert_eq!(
+            m1d.convert_to(Prefix::Micro).values(),
+            Array1::from(vec![1000.0, 2000.0, 3000.0])
+        );
     }
 
     #[test]

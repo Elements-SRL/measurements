@@ -1,11 +1,12 @@
 use crate::{prefix::Prefix, uom::Uom};
+use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     marker::PhantomData,
     ops::{Add, Sub},
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Measurement<U: Uom> {
     value: f64,
     prefix: Prefix,
@@ -108,14 +109,14 @@ impl<U: Uom> PartialOrd for Measurement<U> {
 impl<U: Uom, I: Into<f64>> std::ops::Mul<I> for Measurement<U> {
     type Output = Measurement<U>;
     fn mul(self, rhs: I) -> Self::Output {
-        Measurement::new(self.value*rhs.into(), self.prefix)
+        Measurement::new(self.value * rhs.into(), self.prefix)
     }
 }
 
 impl<U: Uom, I: Into<f64>> std::ops::Div<I> for Measurement<U> {
     type Output = Measurement<U>;
     fn div(self, rhs: I) -> Self::Output {
-        Measurement::new(self.value/rhs.into(), self.prefix)
+        Measurement::new(self.value / rhs.into(), self.prefix)
     }
 }
 

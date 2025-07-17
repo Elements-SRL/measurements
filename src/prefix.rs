@@ -1,4 +1,6 @@
-#[derive(PartialEq, Debug, Clone, Copy)]
+use serde::{Deserialize, Serialize};
+
+#[derive(PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum Prefix {
     Tera,
     Giga,
