@@ -1,5 +1,5 @@
 [package]
-name = "measurements"
+name = "typed-measurements"
 version = "0.1.0"
 edition = "2024"
 description = "A library for handling physical measurements with units."
