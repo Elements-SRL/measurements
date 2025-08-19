@@ -254,6 +254,8 @@ checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
 [[package]]
 name = "uom_derive"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43ee7d5ba6f13114ffa1cbafe83ff373b26e47032ddb95318065b0f78cc1f7ea"
 dependencies = [
  "darling",
  "proc-macro2",
