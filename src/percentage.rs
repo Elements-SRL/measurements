@@ -27,7 +27,7 @@ impl Percentage {
 ///
 /// # Example
 /// ```
-/// use measurements::{percentage, percentage::Percentage};
+/// use typed_measurements::{percentage, percentage::Percentage};
 /// let p = percentage!(0.5);
 /// assert_eq!(p.get_value(), 0.5);
 /// ```

@@ -16,7 +16,7 @@
 ## Example
 
 ```rust
-use measurements::prelude::*;
+use typed_measurements::prelude::*;
 
 let voltage = Measurement::<Volt>::new(5.0, Prefix::Milli); // 5 mV
 let current = Measurement::<Ampere>::new(2.0, Prefix::None); // 2 A
