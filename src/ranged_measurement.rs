@@ -14,6 +14,7 @@ pub struct RangedMeasurement<U: Uom> {
     max: f64,
     step: f64,
     prefix: Prefix,
+    #[serde(skip)]
     uom: PhantomData<U>,
 }
 

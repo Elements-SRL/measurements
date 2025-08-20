@@ -14,6 +14,7 @@ use std::{
 pub struct Measurement<U: Uom> {
     value: f64,
     prefix: Prefix,
+    #[serde(skip)]
     uom: PhantomData<U>,
 }
 
