@@ -35,6 +35,23 @@ impl<U: Uom> RangedMeasurement<U> {
             uom: PhantomData,
         }
     }
+    /// Creates a new symmetrical `RangedMeasurement` with the given value, step, and prefix.
+    ///
+    /// # Arguments
+    /// * `-value` - The minimum value of the range.
+    /// * `value` - The maximum value of the range.
+    /// * `step` - The step size between values in the range.
+    /// * `prefix` - The SI prefix for the unit.
+    pub fn new_sym<V: Into<f64>>(v: V, step: V, prefix: Prefix) -> Self {
+        let v:f64 = v.into();
+        Self {
+            min: -v,
+            max: v,
+            step: step.into(),
+            prefix,
+            uom: PhantomData,
+        }
+    }
 
     /// Returns the minimum value as a [`Measurement`] with the associated prefix.
     pub fn min(&self) -> Measurement<U> {
@@ -62,6 +79,11 @@ impl<U: Uom> RangedMeasurement<U> {
     pub fn is_in_range(&self, other: Measurement<U>, p: Option<Percentage>) -> bool {
         let p = p.unwrap_or(percentage!(1.0)).get_value();
         other > self.min() * p && other < self.max() * p
+    }
+
+    /// Returns a string label combining min, max, step, prefix, and unit (e.g., "[-10.0,10.0,1.0]mV").
+    pub fn label(&self) -> String {
+        "[".to_string() + &self.min.to_string() + "," + &self.max.to_string() + "," + &self.step.to_string() + "]"+ self.prefix.get_label() + &U::uom()
     }
 }
 
