@@ -85,6 +85,36 @@ impl<U: Uom> RangedMeasurement<U> {
     pub fn label(&self) -> String {
         "[".to_string() + &self.min.to_string() + "," + &self.max.to_string() + "," + &self.step.to_string() + "]"+ self.prefix.get_label() + &U::uom()
     }
+
+    /// Converts the ranged measurement to a different SI prefix, scaling the value accordingly.
+    ///
+    /// # Arguments
+    /// * `pfx` - The target SI prefix.
+    ///
+    /// # Returns
+    /// A new [`RangedMeasurement`] with the value converted to the target prefix.
+    pub fn convert_to(&self, pfx: Prefix) -> Self {
+        let cf = self.prefix.get_conversion_factor(pfx);
+        Self {
+            min: self.min * cf,
+            max: self.max * cf,
+            step: self.step * cf,
+            prefix: pfx,
+            uom: PhantomData,
+        }
+    }
+}
+
+impl<U: Uom> PartialEq for RangedMeasurement<U> {
+    fn eq(&self, other: &Self) -> bool {
+        let t = if self.prefix == other.prefix {
+            (self.min, self.max, self.step)
+        } else {
+            let new_rm = self.convert_to(other.prefix);
+            (new_rm.min, new_rm.max, new_rm.step)
+        };
+        t == (other.min, other.max, other.step)
+    }
 }
 
 #[cfg(test)]
@@ -132,5 +162,18 @@ mod ranged_measurement {
     fn is_not_in_range_with_some() {
         let r = RangedMeasurement::<Volt>::new(-10, 10, 1, Prefix::Micro);
         assert!(!r.is_in_range(Measurement::new(1, Prefix::Kilo), Some(percentage!(0.5))));
+    }
+
+    #[test]
+    fn label() {
+        let r = RangedMeasurement::<Volt>::new_sym(10, 1, Prefix::Micro);
+        assert_eq!(r.label(), "[-10,10,1]uV");
+    }
+
+    #[test]
+    fn equality_check() {
+        let r = RangedMeasurement::<Volt>::new_sym(100, 1, Prefix::Micro);
+        let r2 = RangedMeasurement::<Volt>::new_sym(0.1, 0.001, Prefix::Milli);
+        assert_eq!(r, r2);
     }
 }
