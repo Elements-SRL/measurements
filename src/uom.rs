@@ -34,3 +34,24 @@ pub struct Second;
 #[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
 #[uom(label = Hz)]
 pub struct Hertz;
+
+/// Represents the unit Ohm (Ω).
+#[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
+#[uom(label = Ω)]
+pub struct Ohm;
+
+/// Represents the unit Siemens (S).
+#[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
+#[uom(label = S)]
+pub struct Siemens;
+
+/// Represents the unit Coulomb (C).
+#[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
+#[uom(label = C)]
+pub struct Coulomb;
+
+
+/// Represents the unit Farad (F).
+#[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
+#[uom(label = F)]
+pub struct Farad;
