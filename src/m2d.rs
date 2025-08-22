@@ -11,6 +11,7 @@ use std::marker::PhantomData;
 pub struct M2d<U: Uom> {
     values: Array2<f64>,
     prefix: Prefix,
+    #[serde(skip)]
     uom: PhantomData<U>,
 }
 
