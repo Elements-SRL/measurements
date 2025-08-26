@@ -11,6 +11,7 @@ pub enum Prefix {
     Milli,
     Micro,
     Nano,
+    Pico,
     Femto,
 }
 
@@ -26,7 +27,8 @@ impl Prefix {
             Self::Milli => -3,
             Self::Micro => -6,
             Self::Nano => -9,
-            Self::Femto => -12,
+            Self::Pico => -12,
+            Self::Femto => -15,
         }
     }
 
@@ -47,7 +49,8 @@ impl Prefix {
             e if (-3..0).contains(&e) => (Self::Milli, exp - Self::Milli.get_exp_value()),
             e if (-6..-3).contains(&e) => (Self::Micro, exp - Self::Micro.get_exp_value()),
             e if (-9..-6).contains(&e) => (Self::Nano, exp - Self::Nano.get_exp_value()),
-            e if e < -9 => (Self::Femto, exp - Self::Femto.get_exp_value()),
+            e if (-12..-9).contains(&e) => (Self::Nano, exp - Self::Pico.get_exp_value()),
+            e if e < -12 => (Self::Femto, exp - Self::Femto.get_exp_value()),
             _ => panic!("should have caught everything"),
         }
     }
@@ -75,6 +78,7 @@ impl Prefix {
             Self::Milli => "m",
             Self::Micro => "u",
             Self::Nano => "n",
+            Self::Pico => "p",
             Self::Femto => "f",
         }
     }
