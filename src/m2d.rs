@@ -1,5 +1,5 @@
-use crate::{prefix::Prefix, uom::Uom};
-use ndarray::Array2;
+use crate::{m1d::M1d, prefix::Prefix, prelude::Measurement, uom::Uom};
+use ndarray::{Array2, Axis};
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
@@ -21,6 +21,14 @@ impl<U: Uom> M2d<U> {
     /// # Arguments
     /// * `values` - The values as a type convertible into `Array2<f64>`.
     /// * `prefix` - The SI prefix for the unit.
+    /// # Example
+    /// ```
+    /// use typed_measurements::prelude::*;
+    /// use ndarray::Array2;
+    ///
+    /// let arr = Array2::from_shape_vec((2, 2), vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+    /// let m = M2d::<Volt>::new(arr, Prefix::Milli);
+    /// ```
     pub fn new<T: Into<Array2<f64>>>(values: T, prefix: Prefix) -> Self {
         Self {
             values: values.into(),
@@ -37,6 +45,34 @@ impl<U: Uom> M2d<U> {
     /// Returns the SI prefix associated with this array.
     pub fn prefix(&self) -> Prefix {
         self.prefix
+    }
+
+    /// Returns the mean value of all elements as a [`Measurement<U>`].
+    ///
+    /// # Returns
+    /// An `Option<Measurement<U>>` containing the mean, or `None` if the array is empty.
+    pub fn mean(&self) -> Option<Measurement<U>> {
+        Some(Measurement::new(self.values.mean()?, self.prefix()))
+    }
+
+    /// Returns the mean along the specified axis as an [`M1d<U>`].
+    ///
+    /// # Arguments
+    /// * `axis` - The axis along which to compute the mean.
+    ///
+    /// # Returns
+    /// An `Option<M1d<U>>` containing the mean values, or `None` if the axis is invalid.
+    pub fn mean_axis(&self, axis: Axis) -> Option<M1d<U>> {
+        Some(M1d::new(self.values.mean_axis(axis)?, self.prefix()))
+    }
+    /// Returns a clone of the underlying values array.
+    ///
+    /// # Returns
+    /// A copy of the internal `Array2<f64>`.
+    pub fn label(&self) -> String {
+        self.mean()
+            .map_or(Measurement::new(0, self.prefix()), |f| f)
+            .label()
     }
 
     /// Converts the array to a different SI prefix, scaling all values accordingly.

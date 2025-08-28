@@ -1,5 +1,5 @@
-use std::fmt::Debug;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 use uom_derive::Uom;
 
 /// Trait for units of measurement (UOM).
@@ -49,7 +49,6 @@ pub struct Siemens;
 #[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
 #[uom(label = C)]
 pub struct Coulomb;
-
 
 /// Represents the unit Farad (F).
 #[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]

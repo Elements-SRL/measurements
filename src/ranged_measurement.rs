@@ -43,7 +43,7 @@ impl<U: Uom> RangedMeasurement<U> {
     /// * `step` - The step size between values in the range.
     /// * `prefix` - The SI prefix for the unit.
     pub fn new_sym<V: Into<f64>>(v: V, step: V, prefix: Prefix) -> Self {
-        let v:f64 = v.into();
+        let v: f64 = v.into();
         Self {
             min: -v,
             max: v,
@@ -83,7 +83,15 @@ impl<U: Uom> RangedMeasurement<U> {
 
     /// Returns a string label combining min, max, step, prefix, and unit (e.g., "[-10.0,10.0,1.0]mV").
     pub fn label(&self) -> String {
-        "[".to_string() + &self.min.to_string() + "," + &self.max.to_string() + "," + &self.step.to_string() + "]"+ self.prefix.get_label() + &U::uom()
+        "[".to_string()
+            + &self.min.to_string()
+            + ","
+            + &self.max.to_string()
+            + ","
+            + &self.step.to_string()
+            + "]"
+            + self.prefix.get_label()
+            + &U::uom()
     }
 
     /// Converts the ranged measurement to a different SI prefix, scaling the value accordingly.
