@@ -104,8 +104,7 @@ impl<U: Uom> RangedMeasurement<U> {
             + &self.min.to_string()
             + ","
             + &self.max.to_string()
-            + ","
-            + &self.step.map_or("".to_string(), |s| s.to_string())
+            + &self.step.map_or("".to_string(), |s| ",".to_string() + &s.to_string())
             + "]"
             + self.prefix.get_label()
             + &U::uom()
@@ -200,6 +199,12 @@ mod ranged_measurement {
         assert_eq!(r.label(), "[-10,10,1]uV");
     }
 
+    #[test]
+    fn stepless_label() {
+        let r = RangedMeasurement::<Volt>::new_sym_stepless(10, Prefix::Micro);
+        assert_eq!(r.label(), "[-10,10]uV");
+    }
+    
     #[test]
     fn equality_check() {
         let r = RangedMeasurement::<Volt>::new_sym(100, 1, Prefix::Micro);
