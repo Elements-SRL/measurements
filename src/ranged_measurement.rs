@@ -12,7 +12,7 @@ use std::marker::PhantomData;
 pub struct RangedMeasurement<U: Uom> {
     min: f64,
     max: f64,
-    step: f64,
+    step: Option<f64>,
     prefix: Prefix,
     #[serde(skip)]
     uom: PhantomData<U>,
@@ -30,7 +30,7 @@ impl<U: Uom> RangedMeasurement<U> {
         Self {
             min: min.into(),
             max: max.into(),
-            step: step.into(),
+            step: Some(step.into()),
             prefix,
             uom: PhantomData,
         }
@@ -47,7 +47,24 @@ impl<U: Uom> RangedMeasurement<U> {
         Self {
             min: -v,
             max: v,
-            step: step.into(),
+            step: Some(step.into()),
+            prefix,
+            uom: PhantomData,
+        }
+    }
+
+    /// Creates a new symmetrical `RangedMeasurement` without any step with the given value, and prefix.
+    ///
+    /// # Arguments
+    /// * `-value` - The minimum value of the range.
+    /// * `value` - The maximum value of the range.
+    /// * `prefix` - The SI prefix for the unit.
+    pub fn new_sym_stepless<V: Into<f64>>(v: V, prefix: Prefix) -> Self {
+        let v: f64 = v.into();
+        Self {
+            min: -v,
+            max: v,
+            step: None,
             prefix,
             uom: PhantomData,
         }
@@ -63,9 +80,9 @@ impl<U: Uom> RangedMeasurement<U> {
         Measurement::new(self.max, self.prefix)
     }
 
-    /// Returns the step size as a [`Measurement`] with the associated prefix.
-    pub fn step(&self) -> Measurement<U> {
-        Measurement::new(self.step, self.prefix)
+    /// Returns the step size (if any) as a [`Option<Measurement>`] with the associated prefix.
+    pub fn step(&self) -> Option<Measurement<U>> {
+        self.step.map(|s| Measurement::new(s, self.prefix))
     }
 
     /// Checks if a given [`Measurement`] is within the range, optionally scaled by a [`Percentage`].
@@ -88,7 +105,7 @@ impl<U: Uom> RangedMeasurement<U> {
             + ","
             + &self.max.to_string()
             + ","
-            + &self.step.to_string()
+            + &self.step.map_or("".to_string(), |s| s.to_string())
             + "]"
             + self.prefix.get_label()
             + &U::uom()
@@ -106,7 +123,7 @@ impl<U: Uom> RangedMeasurement<U> {
         Self {
             min: self.min * cf,
             max: self.max * cf,
-            step: self.step * cf,
+            step: self.step.map(|s| s * cf) ,
             prefix: pfx,
             uom: PhantomData,
         }
@@ -125,6 +142,11 @@ impl<U: Uom> PartialEq for RangedMeasurement<U> {
     }
 }
 
+impl<U: Uom> From<Measurement<U>> for RangedMeasurement<U> {
+    fn from(value: Measurement<U>) -> Self {
+        Self::new_sym_stepless(value.value(), value.prefix())
+    }
+}
 #[cfg(test)]
 mod ranged_measurement {
     use crate::uom::Volt;
@@ -146,7 +168,7 @@ mod ranged_measurement {
     #[test]
     fn get_step() {
         let r = RangedMeasurement::<Volt>::new(-10, 10, 1, Prefix::Micro);
-        assert_eq!(r.step(), Measurement::new(1, Prefix::Micro));
+        assert_eq!(r.step(), Some(Measurement::new(1, Prefix::Micro)));
     }
 
     #[test]
@@ -183,5 +205,11 @@ mod ranged_measurement {
         let r = RangedMeasurement::<Volt>::new_sym(100, 1, Prefix::Micro);
         let r2 = RangedMeasurement::<Volt>::new_sym(0.1, 0.001, Prefix::Milli);
         assert_eq!(r, r2);
+    }
+
+    #[test]
+    fn from_measurement() {
+        let r = RangedMeasurement::<Volt>::new_sym_stepless(100, Prefix::Micro);
+        assert_eq!(r, Measurement::new(100,  Prefix::Micro).into());
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "typed-measurements"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2024"
 description = "A library for handling physical measurements with units."
 license = "MIT OR Apache-2.0"
