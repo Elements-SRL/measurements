@@ -10,6 +10,15 @@ pub trait Uom: Clone + Copy + Debug {
     fn uom() -> String;
 }
 
+/// Represents the unit Adimensional (F).
+#[derive(PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct Adimensional;
+impl Uom for Adimensional {
+    fn uom() -> String {
+        "".to_string()
+    }
+}
+
 /// Represents the unit Volt (V).
 #[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
 #[uom(label = V)]
