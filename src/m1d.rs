@@ -1,4 +1,4 @@
-use crate::{prefix::Prefix, uom::Uom};
+use crate::{prefix::Prefix, prelude::Measurement, uom::Uom};
 use ndarray::Array1;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
@@ -60,6 +60,23 @@ impl<U: Uom> M1d<U> {
             }
         }
     }
+
+    /// Returns the mean value of all elements as a [`Measurement<U>`].
+    ///
+    /// # Returns
+    /// An `Option<Measurement<U>>` containing the mean, or `None` if the array is empty.
+    pub fn mean(&self) -> Option<Measurement<U>> {
+        Some(Measurement::new(self.values.mean()?, self.prefix))
+    }
+
+    
+    /// Returns the len of the embedded array.
+    ///
+    /// # Returns
+    /// An `usize` as the len.
+    pub fn len(&self) -> usize {
+        self.values.len()
+    } 
 }
 
 impl<U: Uom> PartialEq for M1d<U> {
