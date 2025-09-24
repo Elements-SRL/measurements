@@ -1,5 +1,5 @@
 use crate::{m1d::M1d, prefix::Prefix, prelude::Measurement, uom::Uom};
-use ndarray::{Array2, Axis};
+use ndarray::{concatenate, Array2, Axis};
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
@@ -65,6 +65,17 @@ impl<U: Uom> M2d<U> {
     pub fn mean_axis(&self, axis: Axis) -> Option<M1d<U>> {
         Some(M1d::new(self.values.mean_axis(axis)?, self.prefix()))
     }
+
+    /// Returns the std dev along the specified axis as an [`M1d<U>`].
+    ///
+    /// # Arguments
+    /// * `axis` - The axis along which to compute the std dev.
+    ///
+    /// # Returns
+    /// An `M1d<U>` containing the std values.
+    pub fn std_axis(&self, axis: Axis, ddof: f64) -> M1d<U> {
+        M1d::new(self.values.std_axis(axis, ddof), self.prefix())
+    }
     /// Returns a clone of the underlying values array.
     ///
     /// # Returns
@@ -95,6 +106,23 @@ impl<U: Uom> M2d<U> {
                 uom: PhantomData,
             }
         }
+    }
+
+    /// Returns the length of the inside 2d array.
+    ///
+    /// # Returns
+    /// The length of the inside 2d array as usize.
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    pub fn concatenate_axis(&self, other: &M2d<U>, axis: Axis) -> M2d<U> {
+        let other = if self.prefix != other.prefix {
+            other.clone().convert_to(self.prefix())
+        } else {
+            other.clone()
+        };
+        M2d::new(concatenate![axis, self.values(), other.values()], self.prefix())
     }
 }
 

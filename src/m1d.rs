@@ -68,7 +68,6 @@ impl<U: Uom> M1d<U> {
     pub fn mean(&self) -> Option<Measurement<U>> {
         Some(Measurement::new(self.values.mean()?, self.prefix))
     }
-
     
     /// Returns the len of the embedded array.
     ///
@@ -76,7 +75,7 @@ impl<U: Uom> M1d<U> {
     /// An `usize` as the len.
     pub fn len(&self) -> usize {
         self.values.len()
-    } 
+    }
 }
 
 impl<U: Uom> PartialEq for M1d<U> {
