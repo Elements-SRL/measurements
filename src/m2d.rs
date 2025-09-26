@@ -1,5 +1,5 @@
 use crate::{m1d::M1d, prefix::Prefix, prelude::Measurement, uom::Uom};
-use ndarray::{concatenate, Array2, Axis, Dimension, SliceArg};
+use ndarray::{concatenate, Array2, Axis};
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
@@ -115,7 +115,13 @@ impl<U: Uom> M2d<U> {
     pub fn len(&self) -> usize {
         self.values.len()
     }
-
+    
+    /// Return whether the array has any elements
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
+    
+    /// Concatenate arrays along the given axis.
     pub fn concatenate_axis(&self, other: &M2d<U>, axis: Axis) -> M2d<U> {
         let other = if self.prefix != other.prefix {
             other.clone().convert_to(self.prefix())

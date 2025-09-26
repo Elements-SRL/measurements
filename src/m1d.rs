@@ -76,6 +76,11 @@ impl<U: Uom> M1d<U> {
     pub fn len(&self) -> usize {
         self.values.len()
     }
+    
+    /// Return whether the array has any elements
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
 }
 
 impl<U: Uom> PartialEq for M1d<U> {
