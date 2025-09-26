@@ -1,5 +1,5 @@
 use crate::{m1d::M1d, prefix::Prefix, prelude::Measurement, uom::Uom};
-use ndarray::{concatenate, Array2, Axis};
+use ndarray::{concatenate, Array2, Axis, Dimension, SliceArg};
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
@@ -93,7 +93,7 @@ impl<U: Uom> M2d<U> {
     ///
     /// # Returns
     /// A new [`M2d`] with values converted to the target prefix.
-    fn convert_to(self, pfx: Prefix) -> Self {
+    pub fn convert_to(self, pfx: Prefix) -> Self {
         let conversion_factor = self.prefix.get_conversion_factor(pfx);
         if conversion_factor == 1.0 {
             self.clone()
