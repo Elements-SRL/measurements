@@ -148,6 +148,7 @@ impl<U: Uom> From<Measurement<U>> for RangedMeasurement<U> {
         Self::new_sym_stepless(value.value(), value.prefix())
     }
 }
+
 #[cfg(test)]
 mod ranged_measurement {
     use crate::uom::Volt;

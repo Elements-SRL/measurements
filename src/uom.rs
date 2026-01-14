@@ -5,7 +5,7 @@ use uom_derive::Uom;
 /// Trait for units of measurement (UOM).
 ///
 /// Implement this trait for each unit type to provide a string label for the unit.
-pub trait Uom: Clone + Copy + Debug + Serialize + Send + Sync {
+pub trait Uom: Clone + Copy + Debug + Serialize + Send +  PartialEq {
     /// Returns the string label for the unit (e.g., "V" for Volt).
     fn uom() -> String;
 }
@@ -63,3 +63,15 @@ pub struct Coulomb;
 #[derive(Uom, PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
 #[uom(label = F)]
 pub struct Farad;
+
+
+
+#[cfg(test)]
+mod uom {
+    use super::*;
+
+    #[test]
+    fn equality_check() {
+        assert_eq!(Volt, Volt);
+    }
+}
