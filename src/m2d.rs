@@ -141,23 +141,39 @@ impl<U: Uom> M2d<U> {
             .any(|x| x == &elem.convert_to(self.prefix()).value())
     }
 
-    /// Return an M2d starting from the specified M1d<U>
-    pub fn cut_from_pred(&self, elements: M1d<U>, axis: Axis) -> Option<Self> {
+    /// Returns the index of the first 1D slice that matches the given M1d along the axis.
+    pub fn index_of(&self, elements: M1d<U>, axis: Axis) -> Option<usize> {
         let m = elements.convert_to(self.prefix());
         let target = m.values();
         let data = self.values();
 
-        // For Array2, the length of a lane along axis N is the length of axis (1 - N)
+        // Verify target length matches the lane length of the chosen axis
         let required_len = data.len_of(Axis(1 - axis.index()));
 
-        Some(target)
-            .filter(|t| t.len() == required_len)
-            .and_then(|t| {
-                data.axis_iter(axis).position(|view| view == t).map(|idx| {
-                    let sliced_owned = data.slice_axis(axis, (idx..).into()).to_owned();
-                    Self::new(sliced_owned, self.prefix())
-                })
-            })
+        if target.len() != required_len {
+            return None;
+        }
+
+        data.axis_iter(axis).position(|view| view == target)
+    }
+
+    /// Returns a new M2d starting from the specified index along the given axis.
+    pub fn cut_from_index(&self, index: usize, axis: Axis) -> Option<Self> {
+        let data = self.values();
+
+        // Safety check: ensure index is within the bounds of the dimension we are slicing
+        if index >= data.len_of(axis) {
+            return None;
+        }
+
+        // Functional style: slice, own, and wrap
+        Some(data.slice_axis(axis, (index..).into()).to_owned())
+            .map(|sliced| Self::new(sliced, self.prefix()))
+    }
+    /// Return an M2d starting from the specified M1d<U>
+    pub fn cut_from_pred(&self, elements: M1d<U>, axis: Axis) -> Option<Self> {
+        self.index_of(elements, axis)
+            .and_then(|idx| self.cut_from_index(idx, axis))
     }
 }
 
@@ -280,5 +296,52 @@ mod m2d_tests {
         );
         let res = m.cut_from_pred(M1d::new(vec![6.0, 55.0, 55.0], p), Axis(1));
         assert_eq!(res, None)
+    }
+
+    #[test]
+    fn test_index_of_success() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(vec![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], p);
+        // Searching for the second row (index 1)
+        let target = M1d::new(vec![3.0, 4.0], p);
+        assert_eq!(m.index_of(target, Axis(0)), Some(1));
+    }
+
+    #[test]
+    fn test_index_of_mismatched_dimension() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(vec![[1.0, 2.0], [3.0, 4.0]], p);
+        // Target length is 3, but row length is 2. Should return None, not panic.
+        let target = M1d::new(vec![1.0, 2.0, 3.0], p);
+        assert_eq!(m.index_of(target, Axis(0)), None);
+    }
+
+    #[test]
+    fn test_cut_from_index_valid() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(vec![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], p);
+        // Cut from index 1 along Axis 0 (Rows)
+        let res = m.cut_from_index(1, Axis(0)).unwrap();
+        let expected = M2d::<Volt>::new(vec![[3.0, 4.0], [5.0, 6.0]], p);
+        assert_eq!(res, expected);
+    }
+
+    #[test]
+    fn test_cut_from_index_out_of_bounds() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(vec![[1.0, 2.0]], p);
+
+        // Axis 0 only has 1 row (index 0). Index 5 should safely return None.
+        assert!(m.cut_from_index(5, Axis(0)).is_none());
+    }
+
+    #[test]
+    fn test_cut_from_index_columns() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(vec![[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], p);
+        // Cut from second column (index 1)
+        let res = m.cut_from_index(1, Axis(1)).unwrap();
+        let expected = M2d::<Volt>::new(vec![[2.0, 3.0], [5.0, 6.0]], p);
+        assert_eq!(res, expected);
     }
 }
