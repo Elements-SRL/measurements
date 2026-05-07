@@ -1,5 +1,5 @@
 use crate::{m1d::M1d, prefix::Prefix, prelude::Measurement, uom::Uom};
-use ndarray::{concatenate, Array2, Axis};
+use ndarray::{Array2, Axis, concatenate};
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
@@ -115,12 +115,12 @@ impl<U: Uom> M2d<U> {
     pub fn len(&self) -> usize {
         self.values.len()
     }
-    
+
     /// Return whether the array has any elements
     pub fn is_empty(&self) -> bool {
         self.values.is_empty()
     }
-    
+
     /// Concatenate arrays along the given axis.
     pub fn concatenate_axis(&self, other: &M2d<U>, axis: Axis) -> M2d<U> {
         let other = if self.prefix != other.prefix {
@@ -128,7 +128,36 @@ impl<U: Uom> M2d<U> {
         } else {
             other.clone()
         };
-        M2d::new(concatenate![axis, self.values(), other.values()], self.prefix())
+        M2d::new(
+            concatenate![axis, self.values(), other.values()],
+            self.prefix(),
+        )
+    }
+
+    /// Check if a given element is present
+    pub fn any(&self, elem: &Measurement<U>) -> bool {
+        self.values()
+            .iter()
+            .any(|x| x == &elem.convert_to(self.prefix()).value())
+    }
+
+    /// Return an M2d starting from the specified M1d<U>
+    pub fn cut_from_pred(&self, elements: M1d<U>, axis: Axis) -> Option<Self> {
+        let m = elements.convert_to(self.prefix());
+        let target = m.values();
+        let data = self.values();
+
+        // For Array2, the length of a lane along axis N is the length of axis (1 - N)
+        let required_len = data.len_of(Axis(1 - axis.index()));
+
+        Some(target)
+            .filter(|t| t.len() == required_len)
+            .and_then(|t| {
+                data.axis_iter(axis).position(|view| view == t).map(|idx| {
+                    let sliced_owned = data.slice_axis(axis, (idx..).into()).to_owned();
+                    Self::new(sliced_owned, self.prefix())
+                })
+            })
     }
 }
 
@@ -194,5 +223,62 @@ mod m2d_tests {
         );
         let m2 = m.clone();
         assert_eq!(m, m2);
+    }
+
+    #[test]
+    fn any_elem_present() {
+        let m = M2d::<Volt>::new(
+            Array2::from_shape_vec((2, 2), vec![1.0, 2.0, 3.0, 4.0]).unwrap(),
+            Prefix::Milli,
+        );
+        assert!(m.any(&Measurement::new(2.0, Prefix::Milli)));
+    }
+
+    #[test]
+    fn any_elem_not_present() {
+        let m = M2d::<Volt>::new(
+            Array2::from_shape_vec((2, 2), vec![1.0, 2.0, 3.0, 4.0]).unwrap(),
+            Prefix::Milli,
+        );
+        assert!(!m.any(&Measurement::new(2.0, Prefix::Kilo)));
+    }
+
+    #[test]
+    fn cut_from_pred_elements_present() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(
+            Array2::from_shape_vec((2, 50), Vec::from_iter((0..100).map(|x| x as f64))).unwrap(),
+            p,
+        );
+        let res = m
+            .cut_from_pred(M1d::new(vec![5.0, 55.0], p), Axis(1))
+            .unwrap();
+        let first_line = (5..50).map(|x| x as f64);
+        let second_line = (55..100).map(|x| x as f64);
+        let concat: Vec<f64> = first_line.into_iter().chain(second_line).collect();
+        let control = M2d::<Volt>::new(Array2::from_shape_vec((2, 45), concat).unwrap(), p);
+        assert_eq!(res, control)
+    }
+
+    #[test]
+    fn cut_from_pred_elements_not_present() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(
+            Array2::from_shape_vec((2, 50), Vec::from_iter((0..100).map(|x| x as f64))).unwrap(),
+            p,
+        );
+        let res = m.cut_from_pred(M1d::new(vec![6.0, 55.0], p), Axis(1));
+        assert_eq!(res, None)
+    }
+
+    #[test]
+    fn cut_from_pred_elements_with_no_good_len() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(
+            Array2::from_shape_vec((2, 50), Vec::from_iter((0..100).map(|x| x as f64))).unwrap(),
+            p,
+        );
+        let res = m.cut_from_pred(M1d::new(vec![6.0, 55.0, 55.0], p), Axis(1));
+        assert_eq!(res, None)
     }
 }

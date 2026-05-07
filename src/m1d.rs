@@ -46,7 +46,7 @@ impl<U: Uom> M1d<U> {
     ///
     /// # Returns
     /// A new [`M1d`] with values converted to the target prefix.
-    fn convert_to(self, pfx: Prefix) -> Self {
+    pub fn convert_to(self, pfx: Prefix) -> Self {
         let conversion_factor = self.prefix.get_conversion_factor(pfx);
         if conversion_factor == 1.0 {
             self.clone()
@@ -68,7 +68,7 @@ impl<U: Uom> M1d<U> {
     pub fn mean(&self) -> Option<Measurement<U>> {
         Some(Measurement::new(self.values.mean()?, self.prefix))
     }
-    
+
     /// Returns the len of the embedded array.
     ///
     /// # Returns
@@ -76,7 +76,7 @@ impl<U: Uom> M1d<U> {
     pub fn len(&self) -> usize {
         self.values.len()
     }
-    
+
     /// Return whether the array has any elements
     pub fn is_empty(&self) -> bool {
         self.values.is_empty()
