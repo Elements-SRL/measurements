@@ -66,6 +66,25 @@ impl<U: Uom> M2d<U> {
         Some(M1d::new(self.values.mean_axis(axis)?, self.prefix()))
     }
 
+    /// Returns the sum value of all elements as a [`Measurement<U>`].
+    ///
+    /// # Returns
+    /// An `Measurement<U>` containing the sum.
+    pub fn sum(&self) -> Measurement<U> {
+        Measurement::new(self.values.sum(), self.prefix())
+    }
+
+    /// Returns the sum along the specified axis as an [`M1d<U>`].
+    ///
+    /// # Arguments
+    /// * `axis` - The axis along which to compute the sum.
+    ///
+    /// # Returns
+    /// An `M1d<U>` containing the sum values.
+    pub fn sum_axis(&self, axis: Axis) -> M1d<U> {
+        M1d::new(self.values.sum_axis(axis), self.prefix())
+    }
+
     /// Returns the std dev along the specified axis as an [`M1d<U>`].
     ///
     /// # Arguments
@@ -343,5 +362,64 @@ mod m2d_tests {
         let res = m.cut_from_index(1, Axis(1)).unwrap();
         let expected = M2d::<Volt>::new(vec![[2.0, 3.0], [5.0, 6.0]], p);
         assert_eq!(res, expected);
+    }
+
+    #[test]
+    fn test_global_sum() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(
+            vec![[1.0, 2.0], [3.0, 4.0]],
+            p,
+        );
+        
+        let total_sum = m.sum();
+        
+        // Expected: 1.0 + 2.0 + 3.0 + 4.0 = 10.0
+        // Ensure prefix is preserved
+        assert_eq!(total_sum, Measurement::new(10.0, p));
+    }
+
+    #[test]
+    fn test_sum_axis_0_columns() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(
+            vec![[1.0, 10.0], [2.0, 20.0]],
+            p,
+        );
+
+        // Sum along Axis 0 (collapse rows, resulting in sums of each column)
+        let column_sums = m.sum_axis(Axis(0));
+        
+        // Expected: [1+2, 10+20] = [3.0, 30.0]
+        let expected = M1d::new(vec![3.0, 30.0], p);
+        assert_eq!(column_sums, expected);
+    }
+
+    #[test]
+    fn test_sum_axis_1_rows() {
+        let p = Prefix::Milli;
+        let m = M2d::<Volt>::new(
+            vec![[1.0, 10.0], [2.0, 20.0]],
+            p,
+        );
+
+        // Sum along Axis 1 (collapse columns, resulting in sums of each row)
+        let row_sums = m.sum_axis(Axis(1));
+        
+        // Expected: [1+10, 2+20] = [11.0, 22.0]
+        let expected = M1d::new(vec![11.0, 22.0], p);
+        assert_eq!(row_sums, expected);
+    }
+
+    #[test]
+    fn test_sum_preserves_prefix() {
+        // Testing that the prefix isn't accidentally normalized to 'Base' during sum
+        let p = Prefix::Micro;
+        let m = M2d::<Volt>::new(vec![[5.0, 5.0]], p);
+        
+        let result = m.sum();
+        
+        assert_eq!(result.prefix(), Prefix::Micro);
+        assert_eq!(result.value(), 10.0);
     }
 }
