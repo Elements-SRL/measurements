@@ -142,8 +142,8 @@ impl<U: Uom> M2d<U> {
     }
 
     /// Returns the index of the first 1D slice that matches the given M1d along the axis.
-    pub fn index_of(&self, elements: M1d<U>, axis: Axis) -> Option<usize> {
-        let m = elements.convert_to(self.prefix());
+    pub fn index_of(&self, elements: &M1d<U>, axis: Axis) -> Option<usize> {
+        let m = elements.clone().convert_to(self.prefix());
         let target = m.values();
         let data = self.values();
 
@@ -171,7 +171,7 @@ impl<U: Uom> M2d<U> {
             .map(|sliced| Self::new(sliced, self.prefix()))
     }
     /// Return an M2d starting from the specified M1d<U>
-    pub fn cut_from_pred(&self, elements: M1d<U>, axis: Axis) -> Option<Self> {
+    pub fn cut_from_pred(&self, elements: &M1d<U>, axis: Axis) -> Option<Self> {
         self.index_of(elements, axis)
             .and_then(|idx| self.cut_from_index(idx, axis))
     }
@@ -267,7 +267,7 @@ mod m2d_tests {
             p,
         );
         let res = m
-            .cut_from_pred(M1d::new(vec![5.0, 55.0], p), Axis(1))
+            .cut_from_pred(&M1d::new(vec![5.0, 55.0], p), Axis(1))
             .unwrap();
         let first_line = (5..50).map(|x| x as f64);
         let second_line = (55..100).map(|x| x as f64);
@@ -283,7 +283,7 @@ mod m2d_tests {
             Array2::from_shape_vec((2, 50), Vec::from_iter((0..100).map(|x| x as f64))).unwrap(),
             p,
         );
-        let res = m.cut_from_pred(M1d::new(vec![6.0, 55.0], p), Axis(1));
+        let res = m.cut_from_pred(&M1d::new(vec![6.0, 55.0], p), Axis(1));
         assert_eq!(res, None)
     }
 
@@ -294,7 +294,7 @@ mod m2d_tests {
             Array2::from_shape_vec((2, 50), Vec::from_iter((0..100).map(|x| x as f64))).unwrap(),
             p,
         );
-        let res = m.cut_from_pred(M1d::new(vec![6.0, 55.0, 55.0], p), Axis(1));
+        let res = m.cut_from_pred(&M1d::new(vec![6.0, 55.0, 55.0], p), Axis(1));
         assert_eq!(res, None)
     }
 
@@ -304,7 +304,7 @@ mod m2d_tests {
         let m = M2d::<Volt>::new(vec![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], p);
         // Searching for the second row (index 1)
         let target = M1d::new(vec![3.0, 4.0], p);
-        assert_eq!(m.index_of(target, Axis(0)), Some(1));
+        assert_eq!(m.index_of(&target, Axis(0)), Some(1));
     }
 
     #[test]
@@ -313,7 +313,7 @@ mod m2d_tests {
         let m = M2d::<Volt>::new(vec![[1.0, 2.0], [3.0, 4.0]], p);
         // Target length is 3, but row length is 2. Should return None, not panic.
         let target = M1d::new(vec![1.0, 2.0, 3.0], p);
-        assert_eq!(m.index_of(target, Axis(0)), None);
+        assert_eq!(m.index_of(&target, Axis(0)), None);
     }
 
     #[test]
