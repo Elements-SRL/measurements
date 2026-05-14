@@ -1,7 +1,8 @@
 use std::ops::{Add, Div, Mul, Sub};
 
 use crate::{
-    m2d::{M2d, errors::ErrorCodes},
+    errors::MeasurementErrors,
+    m2d::M2d,
     uom::{Adimensional, Uom},
 };
 
@@ -38,7 +39,7 @@ impl<U: Uom> Div<f64> for M2d<U> {
 }
 
 impl<U: Uom> Add for M2d<U> {
-    type Output = Result<M2d<U>, ErrorCodes>;
+    type Output = Result<M2d<U>, MeasurementErrors>;
     fn add(self, rhs: M2d<U>) -> Self::Output {
         let b1 = self.values();
         let b2 = rhs.values();
@@ -50,13 +51,13 @@ impl<U: Uom> Add for M2d<U> {
                 let nv = n.values() + self.values();
                 Ok(Self { values: nv, ..self })
             }
-            _ => Err(ErrorCodes::DifferentShape(s1.to_vec(), s2.to_vec())),
+            _ => Err(MeasurementErrors::DifferentShape(s1.to_vec(), s2.to_vec())),
         }
     }
 }
 
 impl<U: Uom> Sub for M2d<U> {
-    type Output = Result<M2d<U>, ErrorCodes>;
+    type Output = Result<M2d<U>, MeasurementErrors>;
     fn sub(self, rhs: M2d<U>) -> Self::Output {
         let b1 = self.values();
         let b2 = rhs.values();
@@ -68,13 +69,13 @@ impl<U: Uom> Sub for M2d<U> {
                 let nv = self.values() - n.values();
                 Ok(Self { values: nv, ..self })
             }
-            _ => Err(ErrorCodes::DifferentShape(s1.to_vec(), s2.to_vec())),
+            _ => Err(MeasurementErrors::DifferentShape(s1.to_vec(), s2.to_vec())),
         }
     }
 }
 
 impl<U: Uom> Div for M2d<U> {
-    type Output = Result<M2d<Adimensional>, ErrorCodes>;
+    type Output = Result<M2d<Adimensional>, MeasurementErrors>;
     fn div(self, rhs: M2d<U>) -> Self::Output {
         let b1 = self.values();
         let b2 = rhs.values();
@@ -86,7 +87,7 @@ impl<U: Uom> Div for M2d<U> {
                 let nv = self.values() / n.values();
                 Ok(M2d::new(nv, self.prefix()))
             }
-            _ => Err(ErrorCodes::DifferentShape(s1.to_vec(), s2.to_vec())),
+            _ => Err(MeasurementErrors::DifferentShape(s1.to_vec(), s2.to_vec())),
         }
     }
 }

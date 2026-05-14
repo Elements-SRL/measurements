@@ -3,7 +3,6 @@ use ndarray::{Array2, Axis, concatenate};
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
-pub mod errors;
 pub mod ops;
 
 /// A two-dimensional array of measurements with a unit and SI prefix.

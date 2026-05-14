@@ -1,4 +1,4 @@
 #[derive(Debug)]
-pub enum ErrorCodes {
+pub enum MeasurementErrors {
     DifferentShape(Vec<usize>, Vec<usize>),
 }
