@@ -3,6 +3,9 @@ use ndarray::Array1;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
+pub mod ops;
+pub mod errors;
+
 /// A one-dimensional array of measurements with a unit and SI prefix.
 ///
 /// # Type Parameters
