@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents a SI unit prefix (e.g., kilo, mega, milli).
-#[derive(PartialEq, Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Copy, Serialize, Deserialize, Default)]
 pub enum Prefix {
     Tera,
     Giga,
     Mega,
     Kilo,
+    #[default]
     None,
     Milli,
     Micro,

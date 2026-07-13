@@ -9,7 +9,7 @@ pub mod ops;
 ///
 /// # Type Parameters
 /// - `U`: The unit of measurement, implementing the [`Uom`] trait.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct M1d<U: Uom> {
     values: Array1<f64>,
     prefix: Prefix,

@@ -248,7 +248,7 @@ dependencies = [
 
 [[package]]
 name = "typed-measurements"
-version = "0.10.3"
+version = "0.10.4"
 dependencies = [
  "ndarray",
  "serde",

@@ -10,7 +10,7 @@ use std::{
 ///
 /// # Type Parameters
 /// - `U`: The unit of measurement, implementing the [`Uom`] trait.
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Default)]
 pub struct Measurement<U: Uom> {
     value: f64,
     prefix: Prefix,

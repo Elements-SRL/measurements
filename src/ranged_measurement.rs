@@ -8,7 +8,7 @@ use std::marker::PhantomData;
 ///
 /// # Type Parameters
 /// - `U`: The unit of measurement, implementing the [`Uom`] trait.
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Default)]
 pub struct RangedMeasurement<U: Uom> {
     min: f64,
     max: f64,
