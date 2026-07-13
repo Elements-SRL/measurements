@@ -112,6 +112,11 @@ impl<U: Uom> RangedMeasurement<U> {
             + &U::uom()
     }
 
+    /// Returns the SI prefix associated with this measurement.
+    pub fn prefix(&self) -> Prefix {
+        self.prefix
+    }
+
     /// Converts the ranged measurement to a different SI prefix, scaling the value accordingly.
     ///
     /// # Arguments
